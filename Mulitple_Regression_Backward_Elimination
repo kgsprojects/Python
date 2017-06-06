@@ -57,7 +57,7 @@ X = np.append(arr= np.ones((50, 1)).astype(int), values = X, axis = 1) # Append 
 # Add this to the beginning of the matrix.
 
 #BACKWARD ELIMINATION
-X_opt = X[:,[0,1,2,3,4,5]] # Step 1: Remove variables that are not significant. Write all the indexes in X_column. 
+X_opt = X[:,[0,1,2,3,4,5]] # Step 1: Remove variables that are not significant. Write all the indexes in X_column. Significance Level (SL) = 0.05.
 regressor_OLS = sm.OLS(endog = y, exog = X_opt).fit()# Step 2: Fit the full model with all the possible predictors. OLS- a simple ordinary least squares model
 regressor_OLS.summary() # Step 3: Look for the predictor with the highest P-value. If P>SL then go to step 4. Result: P value is 99% in summary chart
 X_opt = X[:,[0,1,3,4,5]] # Step 1: Remove the highest P-value
