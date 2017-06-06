@@ -1,0 +1,74 @@
+"""
+Created on Mon Jun  5 10:32:38 2017
+
+@author: ksexton
+"""
+# MULTIPLE LINEAR REGRESSION - BACKWARD ELIMINATION
+
+# IMPORTING THE LIBRARIES 
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# IMPORTING THE DATASET
+dataset = pd.read_csv('50_Startups.csv')
+X = dataset.iloc[:, :-1].values # x-values - 'R&D Spend', 'Administration', 'Marketing Spend', 'State' - must ENCODE to FLOAT data
+y = dataset.iloc[:, 4].values # y-values - 'Profit'
+                
+# ENCODING CATEGORICAL DATA
+# Encoding the Independent Variable 
+# Creates Dummy Variables and Deletes Index
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder #Import Library
+labelencoder_X = LabelEncoder() # Change 'LabelEncoder' to 'labelencoder_X'. 
+X[:, 3] = labelencoder_X.fit_transform(X[:, 3]) # Fit label encoder and return ecoded labels (create dummy variables). Change index to 'State' into 0's and 1's (Dummy Variables).
+onehotencoder = OneHotEncoder(categorical_features = [3]) # This is the column we want to index.
+X = onehotencoder.fit_transform(X).toarray() # Transform X-values
+
+# AVOIDING THE DUMMY VARIABLE TRAP - VERY IMPORTANT
+X = X[:,1:] # Used to take all columns of X-values except first column. We take out the first variable to avoid dummy variable trap. 
+     
+# SPLITTING THE DATASET INTO THE TRAINING SET AND TEST SET
+from sklearn.cross_validation import train_test_split # Import 'train_test_split' from 'sklearn.cross_validation' library.
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0) # Create Train and Test values at 20%.
+
+# FEATURE SCALING
+"""from sklearn.preprocessing import StandardScaler
+sc_X = StandardScaler()
+X_train = sc_X.fit_transform(X_train)
+X_test = sc_X.transform(X_test)
+sc_y = StandardScaler()
+y_train = sc_y.fit_transform(y_train)"""
+                            
+# FITTING MULTIPLE LINEAR REGRESSION TO THE TRAINING SET
+from sklearn.linear_model import LinearRegression # Import 'LinearRegression' from 'sklearn.linear_model' library.
+regressor = LinearRegression() # Change 'LinearRegression()' to 'regressor'.
+regressor.fit(X_train, y_train) # Fit to training set.
+          
+# PREDICTING THE TEST SET RESULTS
+y_pred = regressor.predict(X_test) # Predicted model of test set for x-values of 'Startups'.
+
+                         
+# BUILDING THE OPTIMAL MODEL MODEL USING BACKWARD ELIMINATION
+# Find an optimal team of dependent variables so that each independent variable in the team is a powerful predicter on the dependent variable.
+import statsmodels.formula.api as sm # Import 'statsmodel.formula.api' out of library
+X = np.append(arr= np.ones((50, 1)).astype(int), values = X, axis = 1) # Append values at the end of the array.
+# This returns a new array of given shape and type, filled with 1's. 
+# '.astype(int)' is used to change values into integers to prevent error.
+# Add this to the beginning of the matrix.
+
+#BACKWARD ELIMINATION
+X_opt = X[:,[0,1,2,3,4,5]] # Step 1: Remove variables that are not significant. Write all the indexes in X_column. 
+regressor_OLS = sm.OLS(endog = y, exog = X_opt).fit()# Step 2: Fit the full model with all the possible predictors. OLS- a simple ordinary least squares model
+regressor_OLS.summary() # Step 3: Look for the predictor with the highest P-value. If P>SL then go to step 4. Result: P value is 99% in summary chart
+X_opt = X[:,[0,1,3,4,5]] # Step 1: Remove the highest P-value
+regressor_OLS = sm.OLS(endog = y, exog = X_opt).fit() # Step 2: Fit the full model with all the possible predictors. OLS- a simple ordinary least squares model
+regressor_OLS.summary() # Step 3: Is P-value > SL? Yes. Result of P-value is 94% in summary chart.
+X_opt = X[:,[0,3,4,5]] # Step 1: Removed the highest P-value
+regressor_OLS = sm.OLS(endog = y, exog = X_opt).fit() # Step 2: Fit the full model with all the possible predictors. OLS- a simple ordinary least squares model
+regressor_OLS.summary() # Step 3: Is P-value > SL? Yes. Result of P-value is 60% in summary chart.
+X_opt = X[:,[0,3,5]] # Step 1: Removed the highest P-value
+regressor_OLS = sm.OLS(endog = y, exog = X_opt).fit() # Step2: Fit the full model with all the possible predictors. OLS- a simple ordinary least squares model
+regressor_OLS.summary() # Step 3: Is P-value > SL? Yes. Result of P-value is 6% in summary chart.
+X_opt = X[:,[0,3]] # Step 1: Removed the highest P-value
+regressor_OLS = sm.OLS(endog = y, exog = X_opt).fit() # Step 2: Fit the full model with all the possible predictors. OLS- a simple ordinary least squares model
+regressor_OLS.summary() # Step 3: Is p-value > SL? No. Finished.
