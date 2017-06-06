@@ -1,0 +1,45 @@
+Created on Wed May 31 11:21:47 2017
+
+@author: ksexton
+"""
+
+# SIMPLE LINEAR REGRESSION
+
+# Importing the libraries
+import numpy as np # library module for a powerful N-dimensional array object fundamental for scientific computing.
+import matplotlib.pyplot as plt # library module used for plotting figures.
+import pandas as pd # library module that offers data structures and operations for manipulating numerical tables and time series.
+
+# Importing the dataset
+dataset = pd.read_csv('Salary_Data.csv') # Import the dataset 'Salary_Data.csv'.
+X = dataset.iloc[:, :-1].values # X-values
+y = dataset.iloc[:, 1].values # Y-values
+
+# Splitting the dataset into the Training set and Test set
+from sklearn.cross_validation import train_test_split  # Import 'train_test_split' to prevent overfitting.
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 1/3, random_state = 0) # Test set is created for cross-validation of data.
+
+# Fitting Simple Linear Regression to the Training Set
+from sklearn.linear_model import LinearRegression # Imported from linear model library. Used to report the specific value and fit the regressor.
+regressor = LinearRegression() # set regressor = to LinearRegression
+regressor.fit(X_train, y_train) # fit to training set
+
+# Predicting the Test set results
+y_pred = regressor.predict(X_test) # Create vector that will contain predictions of salaries (dependent variable).'y_test' is the actual salaries and 'y_pred' is the predicted salaries.
+# NEXT - Compare actual salaries to predicted salaries. Look at the accuracy of the data.
+
+# Visualizing the Training set results - plot observation points
+plt.scatter(X_train, y_train, color = 'red') # Generate scatter plot in color-red
+plt.plot(X_train, regressor.predict(X_train), color = 'blue') # Generate plot with 'X_train' data and compare to predicted 'X_train' data
+plt.title('Salary vs Experience (Training Set)') # Add title to plot
+plt.xlabel('Years of Experience') # Add x-label
+plt.ylabel('Salary') # Add y-label
+plt.show() # Execute plot
+
+# Visualizing the Test set results
+plt.scatter(X_test, y_test, color = 'red') # Generate scatter plot in color-red
+plt.plot(X_train, regressor.predict(X_train), color = 'blue') # Keep regressor as is because the predictions will be the same plotted
+plt.title('Salary vs Experience (Training Set)') # Add title to plot
+plt.xlabel('Years of Experience') # Add x-label
+plt.ylabel('Salary') # Add y-label
+plt.show() # Execute plot
